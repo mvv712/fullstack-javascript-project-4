@@ -12,7 +12,7 @@ const pageLoader = (urlName, output = '') => {
     throw new Error('wrong URL string');
   }
 
-  const urlSavePath = path.join(output.output, urlToFileName(urlName));
+  const urlSavePath = path.join(output.output, urlToFileName(url.href));
   return axios.get(urlName)
     .then(({ data }) => writeFile(urlSavePath, data))
     .then(() => urlSavePath);
