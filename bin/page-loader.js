@@ -10,7 +10,7 @@ program
   .option('-o, --output <path>', 'output dir', process.cwd())
   .arguments('<url>')
   .action((url) => {
-    const output = program.opts();
+    const { output } = program.opts();
     pageLoader(url, output)
       .then((path) => console.log(path));
   })

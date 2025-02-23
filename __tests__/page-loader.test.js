@@ -1,34 +1,39 @@
 import fsp from 'fs/promises';
 import path from 'path';
 import nock from 'nock';
+import os from 'os';
 import loadPage from '../src/page-loader.js';
+import { getFixturePath, urlToFileName } from '../src/utils.js';
 
 nock.disableNetConnect();
-
-const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
+const url = {
+  site: 'https://ru.hexlet.io',
+  page: '/courses',
+};
+const testUrl = getFixturePath('page-loader-test.html');
+const testUrlContent = await fsp.readFile(testUrl, 'utf-8');
+let testOutput; let
+  testUrlPath;
 
 describe('page-loader', () => {
-  const url = 'https://ru.hexlet.io/courses';
-  const outputDir = getFixturePath();
-  const expected = getFixturePath('ru-hexlet-io-courses');
+  beforeEach(async () => {
+    nock(url.site)
+      .get(url.page)
+      .reply(200, testUrlContent);
 
-  beforeEach(() => {
-    nock(url)
-      .get('/')
-      .reply(200, expected);
+    testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+    testUrlPath = path.join(testOutput, urlToFileName(`${url.site}${url.page}`));
   });
 
-  afterEach(() => {
-    nock.cleanAll();
-    fsp.rmdir(outputDir, { recursive: true });
+  test('return path test', async () => {
+    const result = await loadPage(`${url.site}${url.page}`, testOutput);
+    expect(result).toBe(testUrlPath);
   });
 
-  test('загрузка страницы', async () => {
-    await loadPage(url, outputDir);
+  test('correct result', async () => {
+    await loadPage(`${url.site}${url.page}`, testOutput);
+    const testFileContent = await fsp.readFile(testUrlPath, 'utf-8');
 
-    const filePath = getFixturePath(outputDir, url.split('://')[1].replace(/[^\w]/g, '-').concat('.html'));
-    expect(fsp.exists(filePath)).toBe(true);
-    const content = fsp.readFile(filePath, 'utf-8');
-    expect(content).toEqual(expected);
+    expect(testUrlContent).toStrictEqual(testFileContent);
   });
 });
