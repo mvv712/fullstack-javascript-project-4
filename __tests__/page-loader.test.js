@@ -7,33 +7,50 @@ import { getFixturePath, urlToFileName } from '../src/utils.js';
 
 nock.disableNetConnect();
 const url = {
-  site: 'https://ru.hexlet.io',
+  host: 'https://ru.hexlet.io',
   page: '/courses',
+  full: 'https://ru.hexlet.io/courses',
+  img: '/assets/professions/nodejs.png',
 };
-const testUrl = getFixturePath('page-loader-test.html');
+const testUrl = getFixturePath('input/page-loader-test.html');
 const testUrlContent = await fsp.readFile(testUrl, 'utf-8');
-let testOutput; let
-  testUrlPath;
+let testOutput;
+let testUrlPath;
 
 describe('page-loader', () => {
   beforeEach(async () => {
-    nock(url.site)
+    nock(url.host)
       .get(url.page)
-      .reply(200, testUrlContent);
+      .reply(200, testUrlContent)
+      .get(url.img)
+      .replyWithFile(200, getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'));
 
     testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-    testUrlPath = path.join(testOutput, urlToFileName(`${url.site}${url.page}`));
+    testUrlPath = path.join(testOutput, urlToFileName(url.full));
   });
 
   test('return path test', async () => {
-    const result = await loadPage(`${url.site}${url.page}`, testOutput);
-    expect(result).toBe(testUrlPath);
+    const received = await loadPage(url.full, testOutput);
+    expect(testUrlPath).toBe(received);
   });
 
   test('correct result', async () => {
-    await loadPage(`${url.site}${url.page}`, testOutput);
-    const testFileContent = await fsp.readFile(testUrlPath, 'utf-8');
+    const receivedPath = await loadPage(url.full, testOutput);
+    const receivedContent = await fsp.readFile(receivedPath, 'utf-8');
+    const expectedContent = await fsp.readFile(getFixturePath('result.html'), 'utf-8');
+    expect(receivedContent).toStrictEqual(expectedContent);
+  });
 
-    expect(testUrlContent).toStrictEqual(testFileContent);
+  test('load imgs', async () => {
+    await loadPage(url.full, testOutput);
+    const img = (await fsp.readFile(path.join(testOutput, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8')).toString();
+    const testImg = (await fsp.readFile(getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8')).toString();
+
+    expect(img).toStrictEqual(testImg);
+  });
+
+  afterEach(async () => {
+    nock.cleanAll();
+    await fsp.rmdir(testOutput, { recursive: true });
   });
 });

@@ -6,14 +6,14 @@ import loadPage from '../src/page-loader.js';
 
 nock.disableNetConnect();
 const url = {
-  site: 'https://ru.hexlet.io',
+  host: 'https://ru.hexlet.io',
   page: '/courses',
 };
 let testOutput;
 
 describe('page-loader error', () => {
   beforeEach(async () => {
-    nock(url.site)
+    nock(url.host)
       .get(url.page)
       .reply(404, 'Page not found');
 
@@ -21,6 +21,11 @@ describe('page-loader error', () => {
   });
 
   test('network error', async () => {
-    await expect(() => loadPage(`${url.site}${url.page}`, testOutput)).rejects.toThrow('Request failed with status code 404');
+    await expect(() => loadPage(`${url.host}${url.page}`, testOutput)).rejects.toThrow('Request failed with status code 404');
+  });
+
+  afterEach(async () => {
+    nock.cleanAll();
+    await fsp.rmdir(testOutput, { recursive: true });
   });
 });
