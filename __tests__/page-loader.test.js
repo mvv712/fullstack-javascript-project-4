@@ -23,7 +23,15 @@ describe('page-loader', () => {
       .get(url.page)
       .reply(200, testUrlContent)
       .get(url.img)
-      .replyWithFile(200, getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'));
+      .replyWithFile(200, getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'))
+      .get('/assets/application.css')
+      .replyWithFile(200, getFixturePath('input/application.css'))
+      .get('/courses')
+      .replyWithFile(200, getFixturePath('input/ru-hexlet-io-courses.html'))
+      .get('/packs/js/runtime.js')
+      .replyWithFile(200, getFixturePath('input/ru-hexlet-io-packs-js-runtime.js'))
+      .get('/assets/application2.css')
+      .replyWithFile(200, getFixturePath('input/application2.css'));
 
     testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
     testUrlPath = path.join(testOutput, urlToFileName(url.full));
@@ -51,6 +59,6 @@ describe('page-loader', () => {
 
   afterEach(async () => {
     nock.cleanAll();
-    await fsp.rmdir(testOutput, { recursive: true });
+    // await fsp.rmdir(testOutput, { recursive: true });
   });
 });

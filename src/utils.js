@@ -3,7 +3,7 @@ import path from 'path';
 const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
 const urlToFileName = (url) => {
-  const fileExts = ['png', 'jpeg', 'jpg'];
+  const fileExts = ['png', 'jpeg', 'jpg', 'css', 'js'];
 
   const host = url.split('://').length === 2 ? url.split('://')[1] : url.split('://')[0];
   const hostElems = host.split('.');
