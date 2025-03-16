@@ -7,7 +7,7 @@ const urlToFileName = (url) => {
   const getFileExtension = (fileName) => {
     const match = fileName.match(/\.([a-zA-Z0-9]+)$/);
     return match ? match[1] : null;
-  }
+  };
 
   let host = url.replace(/(^\w+:\/\/)/, '');
   const ext = getFileExtension(host);
