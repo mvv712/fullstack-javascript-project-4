@@ -5,7 +5,7 @@ import path from 'path';
 import beautify from 'js-beautify';
 import { urlToFileName, urlToFolderName } from './utils.js';
 
-export default (content, url, output) => {
+export default async (content, url, output) => {
   const $ = cheerio.load(content);
   const folder = urlToFolderName(url.href);
   const elems = [];
@@ -31,27 +31,24 @@ export default (content, url, output) => {
     });
   });
 
-  return fsp.mkdir(path.join(output, folder), { recursive: true })
-    .then(async () => {
-      /* eslint-disable-next-line */
-      for (const elem of elems) {
-        const { tag, value, href } = elem;
-        const filename = urlToFileName(href);
+  await fsp.mkdir(path.join(output, folder), { recursive: true });
 
-        /* eslint-disable-next-line */
-        await axios.get(href, { responseType: 'arraybuffer' })
-          .then(({ data }) => fsp.writeFile(path.join(output, folder, filename), data))
-          .then(() => {
-            $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`);
-          });
-      }
+  const promises = elems.map(async (elem) => {
+    const { tag, value, href } = elem;
+    const filename = urlToFileName(href);
 
-      return beautify.html($.html(), {
-        extra_liners: [],
-        indent_inner_html: true,
-        indent_size: 2,
-        preserve_newlines: false,
-        wrap_attributes_indent_size: 1,
-      });
-    });
+    const { data } = await axios.get(href, { responseType: 'arraybuffer' });
+    await fsp.writeFile(path.join(output, folder, filename), data);
+    $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`);
+  });
+
+  await Promise.all(promises);
+
+  return beautify.html($.html(), {
+    extra_liners: [],
+    indent_inner_html: true,
+    indent_size: 2,
+    preserve_newlines: false,
+    wrap_attributes_indent_size: 1,
+  });
 };
