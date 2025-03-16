@@ -1,11 +1,17 @@
-import axios from 'axios';
+import { createRequire } from 'module';
 import * as cheerio from 'cheerio';
 import fsp from 'fs/promises';
 import path from 'path';
 import beautify from 'js-beautify';
+import debug from './debug.js';
 import { urlToFileName, urlToFolderName } from './utils.js';
 
+const require = createRequire(import.meta.url);
+require('axios-debug-log');
+const axios = require('axios');
+
 export default async (content, url, output) => {
+  debug('load files');
   const $ = cheerio.load(content);
   const folder = urlToFolderName(url.href);
   const elems = [];
@@ -32,17 +38,24 @@ export default async (content, url, output) => {
   });
 
   await fsp.mkdir(path.join(output, folder), { recursive: true });
+  debug('create folder %s', path.join(output, folder));
 
   const promises = elems.map(async (elem) => {
     const { tag, value, href } = elem;
     const filename = urlToFileName(href);
 
-    const { data } = await axios.get(href, { responseType: 'arraybuffer' });
-    await fsp.writeFile(path.join(output, folder, filename), data);
-    $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`);
+    try {
+      debug('get %s', href);
+      const { data } = await axios.get(href, { responseType: 'arraybuffer' });
+      await fsp.writeFile(path.join(output, folder, filename), data);
+      $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`);
+    } catch (error) {
+      console.error('Error %s: %0', href, error);
+    }
   });
 
   await Promise.all(promises);
+  debug('all files loaded');
 
   return beautify.html($.html(), {
     extra_liners: [],

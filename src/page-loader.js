@@ -2,12 +2,12 @@ import axios from 'axios';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import { urlToFileName } from './utils.js';
-import loadImages from './img-loader.js';
+import loadFiles from './file-loader.js';
 
-const pageLoader = (urlName, output = '') => {
+const pageLoader = (href, output = '') => {
   let url;
   try {
-    url = new URL(urlName);
+    url = new URL(href);
   } catch (err) {
     throw new Error('wrong URL string');
   }
@@ -15,7 +15,7 @@ const pageLoader = (urlName, output = '') => {
   const urlPath = path.join(output, urlToFileName(url.href));
 
   return axios.get(url.href)
-    .then(({ data }) => loadImages(data, url, output))
+    .then(({ data }) => loadFiles(data, url, output))
     .then((html) => writeFile(urlPath, html))
     .then(() => urlPath);
 };
