@@ -12,6 +12,10 @@ program
   .action((url) => {
     const { output } = program.opts();
     pageLoader(url, output)
-      .then((path) => console.log(path));
+      .then((path) => console.log(path))
+      .catch((err) => {
+        console.error(`Page-loader error: ${err.message}`);
+        process.exit(1);
+      });
   })
   .parse();
