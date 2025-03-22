@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import fsp from 'fs/promises';
 import path from 'path';
 import beautify from 'js-beautify';
+import Listr from 'listr';
 import debug from './debug.js';
 import { urlToFileName, urlToFolderName } from './utils.js';
 
@@ -40,7 +41,7 @@ export default async (content, url, output) => {
   await fsp.mkdir(path.join(output, folder), { recursive: true });
   debug('create folder %s', path.join(output, folder));
 
-  const promises = elems.map(async (elem) => {
+  const promise = async (elem) => {
     const { tag, value, href } = elem;
     const filename = urlToFileName(href);
 
@@ -52,9 +53,17 @@ export default async (content, url, output) => {
     } catch (error) {
       console.error('Error %s: %0', href, error);
     }
-  });
+  };
 
-  await Promise.all(promises);
+  const tasks = new Listr(
+    elems.map((elem) => ({
+      title: `loading ${elem.href}`,
+      task: () => promise(elem),
+    })),
+    { concurrent: true },
+  );
+
+  await tasks.run();
   debug('all files loaded');
 
   return beautify.html($.html(), {

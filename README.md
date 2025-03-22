@@ -13,6 +13,9 @@ In addition, this program download all assets:
 - links (css of other types)
 - scripts (only local)
 
+For example:
+./screenshots/step6.jpg
+
 ## Installation
 Clone repository
 ```bash

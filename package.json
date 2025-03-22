@@ -20,7 +20,8 @@
     "debug": "^4.4.0",
     "fs.promises": "^0.1.2",
     "globals": "^15.14.0",
-    "js-beautify": "^1.15.4"
+    "js-beautify": "^1.15.4",
+    "listr": "^0.14.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
