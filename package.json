@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Page loader - cli-app for downloading website with assets",
   "type": "module",
-  "main": "bin/page-loader.js",
+  "main": "src/page-loader.js",
   "bin": {
     "page-loader": "bin/page-loader.js"
   },
