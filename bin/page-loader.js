@@ -8,7 +8,7 @@ program
   .description('Page loader utility')
   .version('1.0.0')
   .option('-o, --output <path>', 'output directory', process.cwd())
-  .argument('<url>', 'URL to load')
+  .arguments('<url>', 'URL to load')
   .action((url) => {
     const { output } = program.opts();
 
