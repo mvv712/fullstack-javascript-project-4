@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fsp from 'fs/promises';
 import path from 'path';
-import { urlToFileName } from './utils.js';
+import { urlToFileName, checkAccess } from './utils.js';
 import loadFiles from './file-loader.js';
 
 const pageLoader = async (href, output = '') => {
@@ -14,16 +14,12 @@ const pageLoader = async (href, output = '') => {
 
   const urlPath = path.join(output, urlToFileName(url.href));
 
-  try {
-    await fsp.access(output);
-  } catch (err) {
-    throw new Error('Not enough permissions in this folder');
-  }
-
-  return axios.get(url.href)
+  return checkAccess(output)
+    .then(() => axios.get(url.href))
     .then(({ data }) => loadFiles(data, url, output))
     .then((html) => fsp.writeFile(urlPath, html))
-    .then(() => urlPath);
+    .then(() => console.log(urlPath))
+    .catch((err) => console.error(`Failed to load data from URL: ${err}`));
 };
 
 export default pageLoader;

@@ -1,4 +1,5 @@
 import path from 'path';
+import fsp from 'fs/promises';
 
 const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
@@ -31,4 +32,9 @@ const urlToFolderName = (url) => {
   return host.replace(/[^\w]/g, '-').concat('_files');
 };
 
-export { getFixturePath, urlToFileName, urlToFolderName };
+const checkAccess = (folder) => fsp.access(folder)
+  .catch((err) => console.error(`Not enough permissions in this folder: ${err.message}`));
+
+export {
+  getFixturePath, urlToFileName, urlToFolderName, checkAccess,
+};
