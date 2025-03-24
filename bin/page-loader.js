@@ -7,10 +7,10 @@ program
   .name('page-loader')
   .description('Page loader utility')
   .version('1.0.0')
-  .option('-o, --output <path>', 'output directory')
+  .option('-o, --output <path>', 'output directory', process.cwd())
   .argument('<url>', 'URL to load')
   .action((url, options) => {
-    const output = options.output || process.cwd();
+    const { output } = program.opts();
 
     pageLoader(url, output)
       .then((path) => console.log(path))
