@@ -9,7 +9,7 @@ program
   .version('1.0.0')
   .option('-o, --output <path>', 'output directory', process.cwd())
   .argument('<url>', 'URL to load')
-  .action((url, options) => {
+  .action((url) => {
     const { output } = program.opts();
 
     pageLoader(url, output)
