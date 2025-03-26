@@ -59,6 +59,6 @@ describe('page-loader', () => {
 
   afterEach(async () => {
     nock.cleanAll();
-    // await fsp.rmdir(testOutput, { recursive: true });
+    await fsp.rmdir(testOutput, { recursive: true });
   });
 });
