@@ -17,7 +17,7 @@ const pageLoader = async (href, output = '') => {
   try {
     await fsp.access(output);
   } catch (err) {
-    throw new Error('Not enough permissions in this folder');
+    throw new Error(`Not enough permissions in this folder ${output}`);
   }
 
   return axios.get(url.href)

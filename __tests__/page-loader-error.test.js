@@ -37,7 +37,7 @@ describe('page-loader error', () => {
       .reply(200, testUrlContent);
 
     const invalidPath = path.join(os.tmpdir(), 'invalid-directory');
-    await expect(loadPage(`${url.host}${url.page}`, invalidPath)).rejects.toThrow('Not enough permissions in this folder');
+    await expect(loadPage(`${url.host}${url.page}`, invalidPath)).rejects.toThrow(`Not enough permissions in this folder ${invalidPath}`);
   });
 
   afterEach(async () => {
