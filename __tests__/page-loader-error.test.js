@@ -12,11 +12,12 @@ const url = {
   full: 'https://ru.hexlet.io/courses',
 };
 const testUrl = getFixturePath('input/page-loader-test.html');
-const testUrlContent = await fsp.readFile(testUrl, 'utf-8');
+let testUrlContent;
 let testOutput;
 
 describe('page-loader error', () => {
   beforeEach(async () => {
+    testUrlContent = await fsp.readFile(testUrl, 'utf-8');
     testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   });
 

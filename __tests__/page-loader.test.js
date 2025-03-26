@@ -13,7 +13,7 @@ const url = {
   img: '/assets/professions/nodejs.png',
 };
 const testUrl = getFixturePath('input/page-loader-test.html');
-const testUrlContent = await fsp.readFile(testUrl, 'utf-8');
+let testUrlContent;
 let testOutput;
 let testUrlPath;
 
@@ -33,6 +33,7 @@ describe('page-loader', () => {
       .get('/assets/application2.css')
       .replyWithFile(200, getFixturePath('input/application2.css'));
 
+    testUrlContent = await fsp.readFile(testUrl, 'utf-8');
     testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
     testUrlPath = path.join(testOutput, urlToFileName(url.full));
   });
