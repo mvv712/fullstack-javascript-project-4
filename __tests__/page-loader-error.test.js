@@ -9,6 +9,7 @@ nock.disableNetConnect();
 const url = {
   host: 'https://ru.hexlet.io',
   page: '/courses',
+  full: 'https://ru.hexlet.io/courses'
 };
 const testUrl = getFixturePath('input/page-loader-test.html');
 const testUrlContent = await fsp.readFile(testUrl, 'utf-8');
@@ -28,7 +29,7 @@ describe('page-loader error', () => {
       .get(url.page)
       .reply(404, 'Page not found');
 
-    await expect(loadPage(`${url.host}${url.page}`, testOutput)).rejects.toThrow('Request failed with status code 404');
+    await expect(loadPage(url.full, testOutput)).rejects.toThrow('Request failed with status code 404');
   });
 
   test('permissions error in folder', async () => {
@@ -37,7 +38,7 @@ describe('page-loader error', () => {
       .reply(200, testUrlContent);
 
     const invalidPath = path.join(os.tmpdir(), 'invalid-directory');
-    await expect(loadPage(`${url.host}${url.page}`, invalidPath)).rejects.toThrow(`Not enough permissions in this folder ${invalidPath}`);
+    await expect(loadPage(url.full, invalidPath)).rejects.toThrow(`Not enough permissions in this folder ${invalidPath}`);
   });
 
   afterEach(async () => {
