@@ -9,7 +9,7 @@ nock.disableNetConnect();
 const url = {
   host: 'https://ru.hexlet.io',
   page: '/courses',
-  full: 'https://ru.hexlet.io/courses'
+  full: 'https://ru.hexlet.io/courses',
 };
 const testUrl = getFixturePath('input/page-loader-test.html');
 const testUrlContent = await fsp.readFile(testUrl, 'utf-8');

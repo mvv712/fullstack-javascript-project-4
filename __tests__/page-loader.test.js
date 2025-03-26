@@ -39,7 +39,7 @@ describe('page-loader', () => {
 
   test('return path test', async () => {
     const received = await loadPage(url.full, testOutput);
-    expect(testUrlPath).toBe(received);
+    expect(received).toBe(testUrlPath);
   });
 
   test('correct result', async () => {
