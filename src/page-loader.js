@@ -5,7 +5,7 @@ import { urlToFileName } from './utils.js';
 import loadFiles from './file-loader.js';
 import debug from './debug.js';
 
-const pageLoader = async (href, output = '') => {
+const pageLoader = async (href, output = process.cwd()) => {
   let url;
   try {
     url = new URL(href);
