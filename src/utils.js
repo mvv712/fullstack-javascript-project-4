@@ -2,33 +2,22 @@ import path from 'path';
 
 const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
-const urlToFileName = (url) => {
-  const fileExts = ['png', 'jpeg', 'jpg', 'css', 'js'];
-  const getFileExtension = (fileName) => {
-    const match = fileName.match(/\.([a-zA-Z0-9]+)$/);
-    return match ? match[1] : null;
-  };
+const urlToName = (url, type = 'file') => {
+  const { dir, name, ext } = path.parse(url);
 
-  let host = url.replace(/(^\w+:\/\/)/, '');
-  const ext = getFileExtension(host);
-
+  let host = `${dir}/${name}`.replace(/(^\w+:\/\/)/, '');
   if (host[host.length - 1].match(/[^\w]/g)) {
     host = host.slice(0, -1);
   }
 
-  if (!fileExts.includes(ext)) {
-    return host.replace(/[^\w]/g, '-').concat('.html');
+  let curExt = '';
+  if (type === 'file') {
+    curExt = '_files';
+  } else {
+    curExt = ext || '.html';
   }
 
-  return host.replace(/(\.[a-zA-Z0-9]+)$/, '').replace(/[^\w]/g, '-').concat(`.${ext}`);
+  return host.replace(/[^\w]/g, '-').concat(curExt);
 };
 
-const urlToFolderName = (url) => {
-  let host = url.replace(/(^\w+:\/\/)/, '');
-  if (host[host.length - 1].match(/[^\w]/g)) {
-    host = host.slice(0, -1);
-  }
-  return host.replace(/[^\w]/g, '-').concat('_files');
-};
-
-export { getFixturePath, urlToFileName, urlToFolderName };
+export { getFixturePath, urlToName };

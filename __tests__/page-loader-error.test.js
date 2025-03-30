@@ -24,7 +24,7 @@ beforeEach(async () => {
 });
 
 test('wrong url', async () => {
-  await expect(loadPage('notUrl', testOutput)).rejects.toThrow('wrong URL string');
+  await expect(loadPage('notUrl', testOutput)).rejects.toThrow('Invalid URL');
 });
 
 test('network error', async () => {

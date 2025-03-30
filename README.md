@@ -14,7 +14,7 @@ In addition, this program download all assets:
 - scripts (only local)
 
 For example:
-./screenshots/step6.jpg
+![example 6](./screenshots/step6.jpg)
 
 ## Installation
 Clone repository
@@ -31,8 +31,8 @@ folder - download directory ( default = process.cwd() )
 url - website
 
 For example:
-./screenshots/step1.jpg
-./screenshots/step3.jpg
+![example 1](./screenshots/step1.jpg)
+![example 3](./screenshots/step3.jpg)
 
 ## Debug
 Also you can use debug for page-loader
@@ -41,8 +41,9 @@ NODE_DEBUG=nock:* DEBUG=page-loader,axios node bin/page-loader.js url
 ```
 
 For example:
-./screenshots/step4_1.jpg
-./screenshots/step4_2.jpg
+![example 4_1](./screenshots/step4_1.jpg)
+![example 4_2](./screenshots/step4_2.jpg)
 
 ## Errors
-Throwing errors for user on screenshot ./screenshots/step5.jpg
+Throwing errors for user on screenshot 
+![example 5](./screenshots/step5.jpg)

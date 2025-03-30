@@ -5,7 +5,7 @@ import path from 'path';
 import beautify from 'js-beautify';
 import Listr from 'listr';
 import debug from './debug.js';
-import { urlToFileName, urlToFolderName } from './utils.js';
+import { urlToName } from './utils.js';
 
 const require = createRequire(import.meta.url);
 require('axios-debug-log');
@@ -14,7 +14,7 @@ const axios = require('axios');
 export default async (content, url, output) => {
   debug('load files');
   const $ = cheerio.load(content);
-  const folder = urlToFolderName(url.href);
+  const folder = urlToName(url.href, 'folder');
   const elems = [];
 
   const tags = {
@@ -38,21 +38,15 @@ export default async (content, url, output) => {
     });
   });
 
-  await fsp.mkdir(path.join(output, folder), { recursive: true });
-  debug('create folder %s', path.join(output, folder));
-
-  const promise = async (elem) => {
+  const promise = (elem) => {
     const { tag, value, href } = elem;
-    const filename = urlToFileName(href);
+    const filename = urlToName(href);
 
-    try {
-      debug('get %s', href);
-      const { data } = await axios.get(href, { responseType: 'arraybuffer' });
-      await fsp.writeFile(path.join(output, folder, filename), data);
-      $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`);
-    } catch (error) {
-      console.error('Error %s: %0', href, error);
-    }
+    debug('get %s', href);
+    return axios.get(href, { responseType: 'arraybuffer' })
+      .then(({ data }) => fsp.writeFile(path.join(output, folder, filename), data))
+      .then(() => $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`))
+      .catch((err) => console.error('Error %s: %0', href, err));
   };
 
   const tasks = new Listr(
@@ -63,14 +57,15 @@ export default async (content, url, output) => {
     { concurrent: true },
   );
 
-  await tasks.run();
-  debug('all files loaded');
-
-  return beautify.html($.html(), {
-    extra_liners: [],
-    indent_inner_html: true,
-    indent_size: 2,
-    preserve_newlines: false,
-    wrap_attributes_indent_size: 1,
-  });
+  return fsp.mkdir(path.join(output, folder), { recursive: true })
+    .then(() => debug('create folder %s', path.join(output, folder)))
+    .then(() => tasks.run())
+    .then(() => debug('all files loaded'))
+    .then(() => beautify.html($.html(), {
+      extra_liners: [],
+      indent_inner_html: true,
+      indent_size: 2,
+      preserve_newlines: false,
+      wrap_attributes_indent_size: 1,
+    }));
 };

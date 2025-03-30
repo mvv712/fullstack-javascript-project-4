@@ -1,19 +1,14 @@
 import axios from 'axios';
 import fsp from 'fs/promises';
 import path from 'path';
-import { urlToFileName } from './utils.js';
+import { urlToName } from './utils.js';
 import loadFiles from './file-loader.js';
 import debug from './debug.js';
 
 const pageLoader = async (href, output = process.cwd()) => {
-  let url;
-  try {
-    url = new URL(href);
-  } catch (err) {
-    throw new Error('wrong URL string');
-  }
+  const url = new URL(href);
 
-  const urlPath = path.join(output, urlToFileName(url.href));
+  const urlPath = path.join(output, urlToName(url.href));
 
   debug('check access folder %s', output);
   try {

@@ -6,7 +6,7 @@ import {
   afterEach, beforeEach, expect, test,
 } from '@jest/globals';
 import loadPage from '../src/page-loader.js';
-import { getFixturePath, urlToFileName } from '../src/utils.js';
+import { getFixturePath, urlToName } from '../src/utils.js';
 
 nock.disableNetConnect();
 const url = {
@@ -37,7 +37,7 @@ beforeEach(async () => {
 
   testUrlContent = await fsp.readFile(testUrl, 'utf-8');
   testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  testUrlPath = path.join(testOutput, urlToFileName(url.full));
+  testUrlPath = path.join(testOutput, urlToName(url.full));
 });
 
 test('return path test', async () => {
