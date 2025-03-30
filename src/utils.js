@@ -11,7 +11,7 @@ const urlToName = (url, type = 'file') => {
   }
 
   let curExt = '';
-  if (type === 'file') {
+  if (type === 'folder') {
     curExt = '_files';
   } else {
     curExt = ext || '.html';
