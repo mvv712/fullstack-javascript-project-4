@@ -42,7 +42,7 @@ beforeEach(async () => {
 
 test('return path test', async () => {
   const received = await loadPage(url.full, testOutput);
-  expect(received).toBe(testUrlPath);
+  expect(received).toBe(`Page was successfully downloaded into ${testUrlPath}`);
 });
 
 test('correct result', async () => {
