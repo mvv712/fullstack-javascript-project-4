@@ -3,7 +3,7 @@ import path from 'path';
 import nock from 'nock';
 import os from 'os';
 import {
-  afterEach, beforeEach, expect, test,
+  afterEach, beforeEach, expect, test, describe,
 } from '@jest/globals';
 import loadPage from '../src/page-loader.js';
 
