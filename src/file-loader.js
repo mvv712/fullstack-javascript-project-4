@@ -5,7 +5,7 @@ import path from 'path';
 import beautify from 'js-beautify';
 import Listr from 'listr';
 import debug from './debug.js';
-import { urlToName } from './utils.js';
+import urlToName from './utils.js';
 
 const require = createRequire(import.meta.url);
 require('axios-debug-log');
@@ -42,11 +42,11 @@ export default async (content, url, output) => {
     const { tag, value, href } = elem;
     const filename = urlToName(href);
 
-    debug('get %s', href);
+    debug(`get ${href}`);
     return axios.get(href, { responseType: 'arraybuffer' })
       .then(({ data }) => fsp.writeFile(path.join(output, folder, filename), data))
       .then(() => $(`[${tags[tag]}=${value}]`).attr(tags[tag], `${folder}/${filename}`))
-      .catch((err) => console.error('Error %s: %0', href, err));
+      .catch((err) => console.error(`Error ${href}: ${err}`));
   };
 
   const tasks = new Listr(
@@ -58,7 +58,7 @@ export default async (content, url, output) => {
   );
 
   return fsp.mkdir(path.join(output, folder), { recursive: true })
-    .then(() => debug('create folder %s', path.join(output, folder)))
+    .then(() => debug(`create folder ${path.join(output, folder)}`))
     .then(() => tasks.run())
     .then(() => debug('all files loaded'))
     .then(() => beautify.html($.html(), {

@@ -6,7 +6,8 @@ import {
   afterEach, beforeEach, expect, test,
 } from '@jest/globals';
 import loadPage from '../src/page-loader.js';
-import { getFixturePath } from '../src/utils.js';
+
+const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
 nock.disableNetConnect();
 const url = {
@@ -14,7 +15,7 @@ const url = {
   page: '/courses',
   full: 'https://ru.hexlet.io/courses',
 };
-const testUrl = getFixturePath('input/page-loader-test.html');
+const testUrl = getFixturePath('ru-hexlet-io-courses.html');
 let testUrlContent;
 let testOutput;
 

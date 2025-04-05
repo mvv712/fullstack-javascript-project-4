@@ -1,23 +1,11 @@
 import path from 'path';
 
-const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
-
-const urlToName = (url, type = 'file') => {
+export default (url, type = 'file') => {
   const { dir, name, ext } = path.parse(url);
 
-  let host = `${dir}/${name}`.replace(/(^\w+:\/\/)/, '');
-  if (host[host.length - 1].match(/[^\w]/g)) {
-    host = host.slice(0, -1);
-  }
+  /* get the part without the protocol and the last non-letter character */
+  const host = `${dir}/${name}`.replace(/^\w+:\/\/(.*?)\/?$/, '$1');
 
-  let curExt = '';
-  if (type === 'folder') {
-    curExt = '_files';
-  } else {
-    curExt = ext || '.html';
-  }
-
+  const curExt = type === 'folder' ? '_files' : (ext || '.html');
   return host.replace(/[^\w]/g, '-').concat(curExt);
 };
-
-export { getFixturePath, urlToName };

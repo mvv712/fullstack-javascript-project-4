@@ -6,43 +6,42 @@ import {
   afterEach, beforeEach, expect, test,
 } from '@jest/globals';
 import loadPage from '../src/page-loader.js';
-import { getFixturePath, urlToName } from '../src/utils.js';
+
+const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
 nock.disableNetConnect();
 const url = {
   host: 'https://ru.hexlet.io',
   page: '/courses',
   full: 'https://ru.hexlet.io/courses',
-  img: '/assets/professions/nodejs.png',
+  expected: {
+    file: 'ru-hexlet-io-courses.html',
+    folder: 'ru-hexlet-io-courses_files',
+  },
+  resourses: [
+    { resUrl: '/courses', resFile: 'ru-hexlet-io-courses.html' },
+    { resUrl: '/assets/professions/nodejs.png', resFile: 'ru-hexlet-io-assets-professions-nodejs.png' },
+    { resUrl: '/assets/application.css', resFile: 'ru-hexlet-io-assets-application.css' },
+    { resUrl: '/packs/js/runtime.js', resFile: 'ru-hexlet-io-packs-js-runtime.js' },
+  ],
 };
-const testUrl = getFixturePath('input/page-loader-test.html');
-let testUrlContent;
+
 let testOutput;
-let testUrlPath;
 
 beforeEach(async () => {
-  nock(url.host)
-    .get(url.page)
-    .reply(200, testUrlContent)
-    .get(url.img)
-    .replyWithFile(200, getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'))
-    .get('/assets/application.css')
-    .replyWithFile(200, getFixturePath('input/application.css'))
-    .get('/courses')
-    .replyWithFile(200, getFixturePath('input/ru-hexlet-io-courses.html'))
-    .get('/packs/js/runtime.js')
-    .replyWithFile(200, getFixturePath('input/ru-hexlet-io-packs-js-runtime.js'))
-    .get('/assets/application2.css')
-    .replyWithFile(200, getFixturePath('input/application2.css'));
-
-  testUrlContent = await fsp.readFile(testUrl, 'utf-8');
   testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  testUrlPath = path.join(testOutput, urlToName(url.full));
+  const testUrlContent = await fsp.readFile(getFixturePath(url.expected.file), 'utf-8');
+
+  const scope = nock(url.host);
+  scope.get(url.page).reply(200, testUrlContent);
+  url.resourses.forEach(({ resUrl, resFile }) => {
+    scope.get(resUrl).replyWithFile(200, getFixturePath(path.join(resFile)));
+  });
 });
 
 test('return path test', async () => {
   const received = await loadPage(url.full, testOutput);
-  expect(received).toBe(testUrlPath);
+  expect(received).toBe(path.join(testOutput, url.expected.file));
 });
 
 test('correct result', async () => {
@@ -52,12 +51,14 @@ test('correct result', async () => {
   expect(receivedContent).toStrictEqual(expectedContent);
 });
 
-test('load imgs', async () => {
-  await loadPage(url.full, testOutput);
-  const img = (await fsp.readFile(path.join(testOutput, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8')).toString();
-  const testImg = (await fsp.readFile(getFixturePath('input/ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8')).toString();
+describe('load content', () => {
+  test.each(url.resourses)('%s', async ({ resFile }) => {
+    await loadPage(url.full, testOutput);
+    const received = (await fsp.readFile(path.join(testOutput, url.expected.folder, resFile), 'utf-8')).toString();
+    const expected = (await fsp.readFile(getFixturePath(resFile), 'utf-8')).toString();
 
-  expect(img).toStrictEqual(testImg);
+    expect(received).toStrictEqual(expected);
+  });
 });
 
 afterEach(async () => {
