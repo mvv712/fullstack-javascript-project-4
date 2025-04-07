@@ -10,10 +10,10 @@ import loadPage from '../src/page-loader.js';
 const getFixturePath = (filename = '') => path.join('__fixtures__', filename);
 
 nock.disableNetConnect();
-const url = {
+const data = {
   host: 'https://ru.hexlet.io',
   page: '/courses',
-  full: 'https://ru.hexlet.io/courses',
+  fullUrl: 'https://ru.hexlet.io/courses',
   expected: {
     file: 'ru-hexlet-io-courses.html',
     folder: 'ru-hexlet-io-courses_files',
@@ -28,40 +28,42 @@ const url = {
 
 let testOutput;
 
-beforeEach(async () => {
-  testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  const testUrlContent = await fsp.readFile(getFixturePath(url.expected.file), 'utf-8');
+describe('page-loader successful tests', () => {
+  beforeEach(async () => {
+    testOutput = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+    const testUrlContent = await fsp.readFile(getFixturePath(data.expected.file), 'utf-8');
 
-  const scope = nock(url.host);
-  scope.get(url.page).reply(200, testUrlContent);
-  url.resourses.forEach(({ resUrl, resFile }) => {
-    scope.get(resUrl).replyWithFile(200, getFixturePath(path.join(resFile)));
+    const scope = nock(data.host);
+    scope.get(data.page).reply(200, testUrlContent);
+    data.resourses.forEach(({ resUrl, resFile }) => {
+      scope.get(resUrl).replyWithFile(200, getFixturePath(path.join(resFile)));
+    });
   });
-});
 
-test('return path test', async () => {
-  const received = await loadPage(url.full, testOutput);
-  expect(received).toBe(path.join(testOutput, url.expected.file));
-});
-
-test('correct result', async () => {
-  const receivedPath = await loadPage(url.full, testOutput);
-  const receivedContent = await fsp.readFile(receivedPath, 'utf-8');
-  const expectedContent = await fsp.readFile(getFixturePath('result.html'), 'utf-8');
-  expect(receivedContent).toStrictEqual(expectedContent);
-});
-
-describe('load content', () => {
-  test.each(url.resourses)('%s', async ({ resFile }) => {
-    await loadPage(url.full, testOutput);
-    const received = (await fsp.readFile(path.join(testOutput, url.expected.folder, resFile), 'utf-8')).toString();
-    const expected = (await fsp.readFile(getFixturePath(resFile), 'utf-8')).toString();
-
-    expect(received).toStrictEqual(expected);
+  test('return path test', async () => {
+    const received = await loadPage(data.fullUrl, testOutput);
+    expect(received).toBe(path.join(testOutput, data.expected.file));
   });
-});
 
-afterEach(async () => {
-  nock.cleanAll();
-  await fsp.rmdir(testOutput, { recursive: true });
+  test('correct result', async () => {
+    const receivedPath = await loadPage(data.fullUrl, testOutput);
+    const receivedContent = await fsp.readFile(receivedPath, 'utf-8');
+    const expectedContent = await fsp.readFile(getFixturePath('result.html'), 'utf-8');
+    expect(receivedContent).toStrictEqual(expectedContent);
+  });
+
+  describe('load content', () => {
+    test.each(data.resourses)('%s', async ({ resFile }) => {
+      await loadPage(data.fullUrl, testOutput);
+      const received = (await fsp.readFile(path.join(testOutput, data.expected.folder, resFile), 'utf-8')).toString();
+      const expected = (await fsp.readFile(getFixturePath(resFile), 'utf-8')).toString();
+
+      expect(received).toStrictEqual(expected);
+    });
+  });
+
+  afterEach(async () => {
+    nock.cleanAll();
+    await fsp.rmdir(testOutput, { recursive: true });
+  });
 });
